@@ -11,7 +11,7 @@ public class Options
     [Option('i', "interval", Required = false, HelpText = "Interval between log messages in seconds. Default is 1 second.")]
     public double LogIntervalSeconds { get; set; } = 1;
 
-    [Option('b', "blocking", Required = false, HelpText = "If true, the runner will block for the duration of the run. Default is false.")]
+    [Option('b', "blocking", Required = false, HelpText = "If true, the runner will block while waiting. Default is false.")]
     public bool IsBlocking { get; set; } = false;
 }
 
@@ -37,7 +37,10 @@ internal class Program
 
         var durationTask = Task.Run(async () =>
         {
-            await Task.Delay((int)duration.TotalMilliseconds);
+            if (options.IsBlocking)
+                Thread.Sleep((int)duration.TotalMilliseconds);
+            else
+                await Task.Delay((int)duration.TotalMilliseconds);
         });
         var loggerTask = Task.Run(async () =>
         {
