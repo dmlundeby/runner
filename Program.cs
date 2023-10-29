@@ -33,8 +33,8 @@ internal class Program
         var duration = TimeSpan.FromSeconds(options.DurationSeconds);
         var logInterval = TimeSpan.FromSeconds(options.LogIntervalSeconds);
 
-        var quotient = ((int)duration.TotalMilliseconds) / ((int)logInterval.TotalMilliseconds);
-        var remainderMs = ((int)duration.TotalMilliseconds) % ((int)logInterval.TotalMilliseconds);
+        var quotient = duration.TotalMilliseconds / logInterval.TotalMilliseconds;
+        var remainderMs = duration.TotalMilliseconds % logInterval.TotalMilliseconds;
         Console.WriteLine("Starting Runner");
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -46,7 +46,7 @@ internal class Program
                 await Task.Delay((int)logInterval.TotalMilliseconds);
             Console.WriteLine($"Elapsed: {(i + 1) * logInterval.TotalSeconds:0.#}s");
         }
-        await Task.Delay(remainderMs);
+        await Task.Delay((int)remainderMs);
         Console.WriteLine($"Runner finished after {duration.TotalSeconds:0.#} seconds.");
     }
 }
