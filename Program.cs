@@ -25,40 +25,28 @@ internal class Program
 
     static async Task Run(Options options)
     {
-        Console.WriteLine("Starting Runner");
         if (options.LogIntervalSeconds > options.DurationSeconds)
         {
             Console.WriteLine("Log interval cannot be greater than duration.");
             return;
         }
-
         var duration = TimeSpan.FromSeconds(options.DurationSeconds);
         var logInterval = TimeSpan.FromSeconds(options.LogIntervalSeconds);
 
-        var durationTask = Task.Run(async () =>
+        var quotient = ((int)duration.TotalMilliseconds) / ((int)logInterval.TotalMilliseconds);
+        var remainderMs = ((int)duration.TotalMilliseconds) % ((int)logInterval.TotalMilliseconds);
+        Console.WriteLine("Starting Runner");
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        for (var i = 0; i < quotient; i++)
         {
             if (options.IsBlocking)
-                Thread.Sleep((int)duration.TotalMilliseconds);
+                Thread.Sleep((int)logInterval.TotalMilliseconds);
             else
-                await Task.Delay((int)duration.TotalMilliseconds);
-        });
-        var loggerTask = Task.Run(async () =>
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            await Task.Delay((int)logInterval.TotalMilliseconds);
-            while (stopwatch.Elapsed < duration)
-            {
-                Console.WriteLine($"Elapsed: {Math.Round(stopwatch.Elapsed.TotalMilliseconds / 1000.0, 1)}s");
                 await Task.Delay((int)logInterval.TotalMilliseconds);
-            };
-        });
-        await durationTask;
-        Console.WriteLine($"Runner finished after {Math.Round(duration.TotalSeconds, 0)} seconds.");
-    }
-
-    static void HandleError()
-    {
-        Console.WriteLine("Error parsing arguments.");
+            Console.WriteLine($"Elapsed: {(i + 1) * logInterval.TotalSeconds:0.#}s");
+        }
+        await Task.Delay(remainderMs);
+        Console.WriteLine($"Runner finished after {duration.TotalSeconds:0.#} seconds.");
     }
 }
